@@ -10,3 +10,5 @@ async def run_day():
         return summary
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
+
+
