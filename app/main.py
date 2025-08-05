@@ -12,3 +12,5 @@ async def run_day():
         raise HTTPException(status_code=500, detail=str(exc))
 
 
+
+

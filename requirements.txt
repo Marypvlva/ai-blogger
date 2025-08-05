@@ -4,3 +4,4 @@ uvicorn[standard]>=0.29
 python-dotenv>=1.0
 httpx>=0.27
 openai-agents>=0.2.3
+pynostr>=0.3.4          # lightweight, pure-Python
