@@ -1,18 +1,24 @@
-# AI Blogger → Bluesky 🚀
+Got it 👍 Here’s the updated **README.md** rewritten fully in **English** and ready to drop into your project.
 
-A fully automated microblog system that generates travel-focused posts using OpenAI and publishes them to Bluesky via the AT-Protocol. It also checks a mock "balance" and decides a sleep duration for the next cycle.
+---
+
+````markdown
+# AI Blogger → Telegram 🚀
+
+An automated microblog system that generates short travel-focused posts using OpenAI and publishes them to a **Telegram channel** via the Bot API.
+Additionally, it checks a mock "balance" and decides how many hours to "sleep" until the next cycle.
 
 ---
 
 ## Tech Stack
 
-| Responsibility         | Technology                            |
-| ---------------------- | ------------------------------------- |
-| Content Generation     | OpenAI GPT-3.5 via `openai` package   |
-| Publishing to Bluesky  | Custom `BlueskyClient` over HTTP xRPC |
-| Web API                | FastAPI + Uvicorn                     |
-| Workflow Orchestration | `DailyRoutine` class                  |
-| Environment Management | `python-dotenv`                       |
+| Responsibility         | Technology                                   |
+| ---------------------- | -------------------------------------------- |
+| Content Generation     | OpenAI (`openai` package)                    |
+| Publishing to Telegram | `publish_to_telegram` service (Bot API, `httpx`) |
+| Web API                | FastAPI + Uvicorn                            |
+| Workflow Orchestration | `DailyRoutine` class                         |
+| Environment Management | `python-dotenv`                              |
 
 ---
 
@@ -23,44 +29,44 @@ A fully automated microblog system that generates travel-focused posts using Ope
    ```bash
    git clone <your-repo-url>
    cd ai-blogger
-   python -m venv .venv
+   python3 -m venv .venv
    source .venv/bin/activate    # Windows: .venv\Scripts\activate
-   ```
+````
+
 2. **Install dependencies**
 
    ```bash
    pip install -r requirements.txt
    ```
+
 3. **Configure environment variables**
 
    ```bash
    cp .env.example .env
    # then edit .env to add your keys
    ```
+
+   Minimum required variables:
+
+   ```ini
+   OPENAI_API_KEY=sk-...
+
+   TELEGRAM_BOT_TOKEN=123456789:AA...your_token
+   # Public channel → @username
+   # Private channel → numeric ID like -1001234567890
+   TELEGRAM_CHAT_ID=@ai_bloggger
+   ```
+
 4. **Run the server**
 
    ```bash
    uvicorn app.main:app --reload
+   # or
+   python -m uvicorn app.main:app --reload
    ```
-5. **Open Swagger UI** at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) and POST to `/run-day`.
 
----
+5. **Open Swagger UI** at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) and send a `POST` request to `/run-day`.
 
-## Required `.env` Variables
-
-```ini
-# OpenAI Settings
-env OPENAI_API_KEY=sk-...
-
-# Bluesky (AT-Protocol) Credentials
-BLSKY_EMAIL=your.email@example.com
-BLSKY_PASS=your_password
-# Optional: override default host
-BLSKY_HOST=https://bsky.social
-```
-OPENAI_API_KEY=your_key
-CONTENT_DAO_URL=https://contentdao.example
-FINANCE_URL=https://bank.example
 ---
 
 ## Architecture Overview
@@ -72,20 +78,19 @@ FINANCE_URL=https://bank.example
               │              │
       await   │              │   POST
               │              ▼
-     ┌────────┴──────┐   ┌───────────────┐
-     │ DailyRoutine   │──▶ BlueskyClient │
-     │ - generate     │   │ - login       │
-     │ - publish      │   │ - createRecord│
-     │ - finance check│   └───────────────┘
+     ┌────────┴──────┐   ┌───────────────────────┐
+     │ DailyRoutine   │──▶ Telegram Publisher     │
+     │ - generate     │   │ publish_to_telegram() │
+     │ - publish      │   └───────────────────────┘
+     │ - finance check│
      │ - sleep calc   │
      └───────▲────────┘
              │
-             │
-      generate via
+             │ generate via OpenAI
              │
    ┌─────────┴─────────┐
    │  BloggerAgent      │
-   │  (OpenAI GPT-3.5)  │
+   │    (OpenAI)        │
    └────────────────────┘
 ```
 
@@ -93,8 +98,8 @@ FINANCE_URL=https://bank.example
 
 ## Workflow Details
 
-1. **Content Generation**: `BloggerAgent` uses OpenAI to craft a post no longer than 300 characters.
-2. **Publishing**: `BlueskyClient` logs in and calls the AT-Protocol endpoint to publish the post.
+1. **Content Generation**: `BloggerAgent` uses OpenAI to craft a post (\~300 characters).
+2. **Publishing**: `publish_to_telegram(text)` sends the post to the configured Telegram channel.
 3. **Finance Check**: `FinanceClient` mock-checks balance and optionally "pays" expenses.
 4. **Sleep Decision**: `decide_sleep_hours()` determines downtime until the next cycle.
 
@@ -107,20 +112,53 @@ FINANCE_URL=https://bank.example
 Runs the daily routine:
 
 * Generates a new post
-* Publishes it to Bluesky
+* Publishes it to Telegram
 * Checks balance and pays if needed
 * Decides sleep hours
 
-**Response**: JSON object with keys:
+**Response example:**
 
 ```json
 {
-  "post_text": "...",
-  "bsky_uri": "at://...",
-  "bsky_cid": "...",
+  "post_text": "Heading to the mountains today...",
+  "telegram_message_id": 123,
+  "telegram_chat_id": -1001234567890,
   "balance": 42,
   "sleep_hours": 7
 }
 ```
 
+---
 
+## Telegram Setup
+
+1. Create a bot via **@BotFather** → get your `TELEGRAM_BOT_TOKEN`.
+2. Add the bot as an **admin** to your channel with the permission *Post Messages*.
+3. Public channel → use `TELEGRAM_CHAT_ID=@your_channel`.
+   Private channel → use numeric `chat_id` (format: `-100...`, can be retrieved via `getUpdates`).
+
+---
+
+## Debugging Tips
+
+* `.env` is loaded at app startup (`load_dotenv()` in `app/main.py`).
+* If you get `500 TELEGRAM_BOT_TOKEN not set`:
+
+  * Ensure `.env` exists in the project root.
+  * Keys have no quotes or extra spaces.
+  * The bot is an admin of the channel.
+* Works on Python **3.10+** (tested on 3.13).
+
+---
+
+## Related Files
+
+* `app/services/telegram.py` → function to send messages to Telegram.
+* `app/workflows/daily_routine.py` → main workflow, integrates post generation, publishing, finance, and sleep.
+
+```
+
+---
+
+Do you want me to also rewrite the `.env.example` file to match this new **Telegram-only** setup (remove the old Bluesky keys)?
+```
