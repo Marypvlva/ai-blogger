@@ -12,8 +12,8 @@ class BloggerAgent:
     def __init__(self) -> None:
         self.agent = Agent(
             name="Blogger",
-            instructions="You are a travel micro-blogger on Bluesky.\n"
-            f"Write a catchy post no longer than 40 characters.\n"
+            instructions="You are a travel micro-blogger on telegram chanel.\n"
+            f"Write a catchy post.\n"
             "Use short sentences and emojis if appropriate.\n"
         )
         # одна и та же сессия для всех вызовов → память сохранится
