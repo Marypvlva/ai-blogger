@@ -1,0 +1,17 @@
+# env-файлы
+.env
+*.env
+.env.*
+.envrc
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# IDE & OS
+.idea/
+.vscode/
+.DS_Store
