@@ -21,3 +21,13 @@ venv/
 *.db
 app/db/data/
 app/data/
+
+__pycache__/
+*.pyc
+
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+
+cookies.txt
