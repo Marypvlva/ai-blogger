@@ -10,6 +10,6 @@ def get_session(name: str = "blogger") -> SQLiteSession:
     Один файл agents.sqlite хранит истории разных session_id.
     """
     return SQLiteSession(
-        session_id=name,                              # ← параметр функции
-        db_path=str(BASE / "agents.sqlite")           # ← гарантированный файл
+        session_id=name,                              
+        db_path=str(BASE / "agents.sqlite")           
     )

@@ -8,7 +8,7 @@ import httpx
 # ENV:
 # FARCASTER_API_KEY=...         # Neynar API key
 # FARCASTER_SIGNER_UUID=...     # signer uuid (approved)
-# FARCASTER_USERNAME=ai-bloggger # (опционально) для follower_count
+
 
 API_KEY = os.getenv("NEYNAR_API_KEY")
 SIGNER_UUID = os.getenv("FARCASTER_SIGNER")

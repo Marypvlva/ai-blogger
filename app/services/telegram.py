@@ -29,7 +29,7 @@ def set_tg_update_offset(v: int) -> None:
 def _sum_reactions(items) -> int:
     total = 0
     for it in (items or []):
-        # у Bot API встречаются total_count ИЛИ count
+        
         total += int(it.get("total_count") or it.get("count") or 0)
     return total
 
@@ -125,7 +125,7 @@ async def poll_telegram_updates_once(
     updates = (data or {}).get("result") or []
     max_update_id = offset
 
-    # mid -> текущая сумма реакций (максимум среди апдейтов за этот пакет)
+    
     summed_now: Dict[int, int] = {}
 
     for upd in updates:
@@ -137,7 +137,7 @@ async def poll_telegram_updates_once(
         if not mrc:
             continue
 
-        # ---- ВАЖНО: поддержать обе формы ----
+        
         if "message" in mrc and isinstance(mrc["message"], dict):
             msg = mrc["message"]
             chat = msg.get("chat") or {}
@@ -146,7 +146,7 @@ async def poll_telegram_updates_once(
             chat = mrc.get("chat") or {}
             mid = mrc.get("message_id")
 
-        # фильтр по нашему каналу
+        
         if str(chat.get("id")) != str(TELEGRAM_CHAT_ID):
             continue
         if mid is None:
@@ -158,12 +158,12 @@ async def poll_telegram_updates_once(
             known_set.add(str(mid))
 
         this_sum = _sum_reactions(mrc.get("reactions"))
-        # на случай нескольких апдейтов по одному mid берём максимум
+        
         prev = summed_now.get(mid, 0)
         if this_sum > prev:
             summed_now[mid] = this_sum
 
-    # посчитать дельту и обновить БД
+    
     added_likes_total = 0
     for mid, now_sum in summed_now.items():
         old_sum = 0

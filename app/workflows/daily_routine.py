@@ -30,11 +30,11 @@ from app.services.posts_dao import (
 
 from app.agents.BloggerReinforcment import BloggerReinforcment
 
-# === ContentDAO интеграция ===
-# Ожидается, что в app/services/content_dao.py есть:
-#   - класс ContentDAO (использующий COOKIE из .env)
-#   - функция fetch_next_topic_and_reserve(dao, social="Telegram") -> dict|None
-# Если у тебя другая сигнатура — поправь импорты/вызов ниже.
+
+
+
+
+
 try:
     from app.services.content_dao import ContentDAO, fetch_next_topic_and_reserve
 except Exception:
@@ -95,27 +95,27 @@ class DailyRoutine:
         except Exception:
             action = self.ACTION_POST
 
-        # ---------- 0) Бриф из ContentDAO (и резерв задачи) ----------
+        
         brief: Optional[Dict[str, Any]] = None
         dao = None
         if ContentDAO and fetch_next_topic_and_reserve:
             try:
-                dao = ContentDAO()  # использует CONTENT_DAO_URL и CONTENT_DAO_COOKIE из .env
+                dao = ContentDAO()  
                 brief = await fetch_next_topic_and_reserve(dao, social="Telegram")
             except Exception as e:
                 print("[ContentDAO] fetch brief failed:", e)
                 brief = None
 
-        # ---------- 1) Генерация текста поста ----------
+        
         if brief:
-            # передаём только сам бриф — BloggerAgent сам оформит промпт
+            
             topic_or_brief = (
                 f"Бренд: {brief.get('brand', '')}\n"
                 f"Заголовок: {brief.get('title', '')}\n"
                 f"Описание: {brief.get('description', '')}"
             )
         else:
-            # ничего не передаём → BloggerAgent использует тревел-фолбэк
+            
             topic_or_brief = None
 
         post_text: str = await _await_if_needed(self.blog_agent.write_post(topic_or_brief))
@@ -123,7 +123,7 @@ class DailyRoutine:
         tg_resp: Dict[str, Any] = {}
         fc_hash: Optional[str] = None
 
-        # ---------- 2) Публикация ----------
+        
         if action != self.ACTION_SLEEP:
             # Telegram
             tg_resp = await publish_to_telegram(post_text) or {}
@@ -134,14 +134,14 @@ class DailyRoutine:
             if fc_hash:
                 save_post("farcaster", fc_hash, post_text)
 
-        # ---------- 3) Отчёт в ContentDAO (send-link) ----------
+        
         if brief and tg_resp:
             try:
                 result = tg_resp.get("result") or {}
                 message_id = result.get("message_id")
                 chat_id = (result.get("chat") or {}).get("id")
                 if message_id is not None and chat_id is not None and dao:
-                    tg_username = os.getenv("TELEGRAM_PUBLIC_USERNAME")  # если канал публичный
+                    tg_username = os.getenv("TELEGRAM_PUBLIC_USERNAME")  
                     link = _build_tg_link(chat_id, message_id, tg_username)
                     await dao.send_link(task_id=brief["taskId"], profile_id=brief["profileId"], link_to_post=link)
             except Exception as e:
@@ -152,7 +152,7 @@ class DailyRoutine:
             except Exception:
                 pass
 
-        # ---------- 4) Farcaster: обновим метрики у всех кастов ----------
+        
         for h in list_all_farcaster_casts():
             try:
                 m = await get_cast_metrics(h)
@@ -160,14 +160,14 @@ class DailyRoutine:
             except Exception as e:
                 print("[farcaster metrics] failed:", e)
 
-        # ---------- 5) Telegram: один опрос getUpdates → агрегат за этот опрос ----------
+        
         try:
             tg_added = await poll_telegram_updates_once()
         except Exception as e:
             print("[telegram poll] failed:", e)
             tg_added = {"likes": 0, "forwards": 0, "replies": 0, "views": 0}
 
-        # ---------- 6) RL: расчёт награды и обновление ----------
+        
         next_state = await self._state_now()
 
         reward = self._default_reward(prev_state, next_state)
@@ -184,20 +184,20 @@ class DailyRoutine:
             except Exception:
                 pass
 
-        # ---------- 7) Финансы и сон ----------
+        
         balance = await _await_if_needed(self.finance.get_balance())
         if balance > 20:
             await _await_if_needed(self.finance.pay_expenses(10))
         sleep_hours = decide_sleep_hours(balance)
 
-        # ---------- 8) Ответ ----------
+        
         return {
             "action": action,
             "reward": reward,
             "telegram": {
                 "message_id": (tg_resp.get("result") or {}).get("message_id"),
                 "chat_id": (tg_resp.get("result") or {}).get("chat", {}).get("id"),
-                "run_added": tg_added,  # сколько добавилось за этот опрос
+                "run_added": tg_added,  
             },
             "farcaster": {
                 "cast_hash": fc_hash,

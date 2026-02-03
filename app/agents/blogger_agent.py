@@ -3,19 +3,19 @@ from __future__ import annotations
 
 from typing import Optional, Union, Dict, Any
 
-# Твои классы агента/раннера
+
 from agents import Agent, Runner  # noqa: F401
 
-# Настройки и сессия: поддержим обе раскладки проекта
+
 try:
     from app.config import settings  # noqa: F401
 except Exception:
     settings = None  # type: ignore
 
 try:
-    from app.db.session import get_session  # вариант 1: db/session.py
+    from app.db.session import get_session  
 except Exception:
-    # вариант 2: agents/session.py
+    
     from app.agents.session import get_session  # type: ignore
 
 
@@ -28,7 +28,7 @@ class BloggerAgent:
     """
 
     def __init__(self) -> None:
-        # Базовые инструкции для роли (микро-блогер про путешествия)
+        
         self.agent = Agent(
             name="Blogger",
             instructions=(
@@ -38,7 +38,7 @@ class BloggerAgent:
                 "Avoid clickbait and toxicity. No hashtags.\n"
             ),
         )
-        # одна и та же сессия — чтобы сохранялась память в agents.sqlite
+        
         self.session = get_session("blogger")
 
     async def write_post(self, topic_or_brief: Optional[Union[str, Dict[str, Any]]] = None) -> str:
@@ -51,17 +51,17 @@ class BloggerAgent:
         """
         prompt = self._build_prompt(topic_or_brief)
 
-        # Runner сам пишет историю в БД через session
+        
         result = await Runner.run(self.agent, prompt, session=self.session)
 
-        # безопасные фолбэки под разные версии Runner’а
+        
         text = (
             getattr(result, "final_output", None)
             or getattr(result, "text", None)
             or (result if isinstance(result, str) else None)
         )
         if text is None:
-            # иногда результат лежит в .message / .content / .output
+            
             text = (
                 getattr(result, "message", None)
                 or getattr(result, "content", None)
@@ -80,7 +80,7 @@ class BloggerAgent:
             brand = str(topic_or_brief.get("brand", "") or "")
             title = str(topic_or_brief.get("title", "") or "")
             desc = str(topic_or_brief.get("description", "") or topic_or_brief.get("brief", "") or "")
-            # Бриф из ContentDAO
+            
             return (
                 "Сгенерируй короткий пост для Telegram по брифу.\n"
                 f"Бренд: {brand}\n"
@@ -91,14 +91,14 @@ class BloggerAgent:
             )
 
         if isinstance(topic_or_brief, str) and topic_or_brief.strip():
-            # Пользователь передал готовый промпт/тему — просто уточним формат
+            
             return (
                 "Напиши короткий пост для Telegram на заданную тему, дружелюбно и без кликбейта. "
                 "Короткие фразы, 1–2 релевантных эмодзи, без хештегов.\n\n"
                 f"Тема/брИф: {topic_or_brief.strip()}"
             )
 
-        # Запасной вариант: случайная тревел-тема
+        
         return (
             "Ты тревел-блогер. Напиши короткий, увлекательный пост для Telegram "
             "про одно интересное место (достопримечательность, маршрут или лайфхак).\n"

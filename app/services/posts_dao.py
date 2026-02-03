@@ -3,13 +3,13 @@ from typing import List, Dict, Any, Iterable, Optional
 import sqlite3
 from pathlib import Path
 
-# Один файл БД для всего проекта
+
 DB_PATH = Path(__file__).resolve().parents[1] / "db" / "data" / "agents.sqlite"
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-# Таблицы:
-# - posts         (у тебя уже есть; здесь Farcaster-посты)
-# - telegram_posts(новая — для канал-постов и их метрик)
+
+
+
 
 
 def _conn() -> sqlite3.Connection:
@@ -20,7 +20,7 @@ def _conn() -> sqlite3.Connection:
 
 def _init() -> None:
     with _conn() as con:
-        # Общая таблица постов (как была)
+        
         con.execute(
             """
             CREATE TABLE IF NOT EXISTS posts (
@@ -39,7 +39,7 @@ def _init() -> None:
         con.execute("CREATE INDEX IF NOT EXISTS idx_posts_platform ON posts(platform)")
         con.execute("CREATE INDEX IF NOT EXISTS idx_posts_ext ON posts(external_id)")
 
-        # Telegram-таблица (для подробных метрик и backfill)
+        
         con.execute(
             """
             CREATE TABLE IF NOT EXISTS telegram_posts (
@@ -56,7 +56,7 @@ def _init() -> None:
         )
 
 
-# ----------------------- Farcaster (как было) -----------------------
+
 def save_post(platform: str, external_id: str, text: str) -> None:
     _init()
     with _conn() as con:

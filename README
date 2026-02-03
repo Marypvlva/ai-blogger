@@ -1,7 +1,4 @@
----
 
-````markdown
-# AI Blogger → Telegram 🚀
 
 An automated microblog system that generates short travel-focused posts using OpenAI and publishes them to a **Telegram channel** via the Bot API and Farcaster.
 Additionally, it checks a mock "balance" and decides how many hours to "sleep" until the next cycle.

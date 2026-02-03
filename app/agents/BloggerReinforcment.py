@@ -224,7 +224,7 @@ class BloggerReinforcment:
         s = self._to_normalized(raw_state)
         return self._policy_probs(s)
 
-    # === (опционально) CSV-лог шага обучения ===
+    
     def log_step(self, reward: float, action: int, prev_state: list[float], next_state: list[float], probs):
         newfile = not LOG_PATH.exists()
         with open(LOG_PATH, "a", newline="") as f:

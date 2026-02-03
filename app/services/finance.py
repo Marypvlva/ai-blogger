@@ -6,7 +6,7 @@ class FinanceClient:
 
     async def get_balance(self) -> float:
         """Возвращает текущий баланс, €."""
-        # TODO: настоящий запрос
+        
         async with httpx.AsyncClient() as client:
             # resp = await client.get(f"{self.BASE_URL}/balance")
             # balance = resp.json()["balance"]
@@ -15,5 +15,5 @@ class FinanceClient:
 
     async def pay_expenses(self, amount: float) -> bool:
         """Платим за существование; True если успешно."""
-        # TODO: настоящий платёж
+        
         return True
