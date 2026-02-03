@@ -1,11 +1,9 @@
-Got it 👍 Here’s the updated **README.md** rewritten fully in **English** and ready to drop into your project.
-
 ---
 
 ````markdown
 # AI Blogger → Telegram 🚀
 
-An automated microblog system that generates short travel-focused posts using OpenAI and publishes them to a **Telegram channel** via the Bot API.
+An automated microblog system that generates short travel-focused posts using OpenAI and publishes them to a **Telegram channel** via the Bot API and Farcaster.
 Additionally, it checks a mock "balance" and decides how many hours to "sleep" until the next cycle.
 
 ---
@@ -159,6 +157,3 @@ Runs the daily routine:
 ```
 
 ---
-
-Do you want me to also rewrite the `.env.example` file to match this new **Telegram-only** setup (remove the old Bluesky keys)?
-```
